@@ -20,10 +20,7 @@ const JB   = "https://api.jsonbin.io/v3/b";
 const CONNEX = {
   c: { name:"Sammelbestellung Connex Fahrradketten", sponsor:"Connex by Wippermann", deadline:"", description:"Hochwertige Fahrradketten Made in Germany – zum Team-Sonderpreis. Bitte bis zur Frist bestellen!" },
   p: [
-        { id:"c1",   name:"Connex 12SR WAX",                   cat:"Rennrad / MTB",    
-                     desc:"12-fach, SRAM Flattop kompatibel<br>Glieder: 126 Gewicht: 285" , 
-                     uvp:"74.90",     preis:"30.00", 
-                     img:"Artikelbilder/connex-12SR.jpg" },
+        { id:"c1",  name:"Connex 12SR",                   cat:"Rennrad / MTB",    desc:"12-fach, SRAM Flattop kompatibel\nFarbe: Silber (Nickel)\nGlieder: 126\nGewicht: 285g", uvp:"",     preis:"", img:"https://medien.connexchain.com/website/bilder/Slider/connex-12SR-s-03.jpg" },
     { id:"c2",  name:"Connex 12S0",                   cat:"Rennrad / MTB",    desc:"12-fach. Hochwertige Materialien, beste Schaltperformance.", uvp:"",     preis:"", img:"https://medien.connexchain.com/website/bilder/home/startseiten-slider/connex-web-slider-12S0.jpg" },
     { id:"c3",  name:"Connex 11SX",                   cat:"Rennrad / MTB",    desc:"11-fach. High Performance-Laschengeometrie.", uvp:"",     preis:"", img:"" },
     { id:"c4",  name:"Connex 11SB",                   cat:"Rennrad / MTB",    desc:"11-fach, Schwarz. Extrem strapazierfähig, Industry Proved.", uvp:"",     preis:"", img:"" },
@@ -431,7 +428,7 @@ function App() {
                   style=${{width:72,height:72,objectFit:"contain",borderRadius:8,border:"1px solid #f1f5f9",flexShrink:0,background:"#f8fafc"}} />`:""}
                 <div style=${{flex:1,minWidth:0}}>
                   <div style=${{fontWeight:700,color:"#0f172a",fontSize:14}}>${p.name}</div>
-                  ${p.desc?html`<p style=${{margin:"4px 0 0",fontSize:12,color:"#64748b",lineHeight:1.5}}>${p.desc}</p>`:""}
+                  ${p.desc?html`<p style=${{margin:"4px 0 0",fontSize:12,color:"#64748b",lineHeight:1.5,whiteSpace:"pre-line"}}>${p.desc}</p>`:""}
                 </div>
                 <div style=${{textAlign:"right",flexShrink:0}}>
                   ${dp?html`<div>

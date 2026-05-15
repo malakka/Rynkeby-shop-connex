@@ -20,11 +20,7 @@ const JB   = "https://api.jsonbin.io/v3/b";
 const CONNEX = {
   c: { name:"Sammelbestellung Connex Fahrradketten", sponsor:"Connex by Wippermann", deadline:"", description:"Hochwertige Fahrradketten Made in Germany – zum Team-Sonderpreis. Bitte bis zur Frist bestellen!" },
   p: [
-        { id:"c1",  name:"Connex 12SR WAX",                   cat:"Rennrad / MTB",    
-                                                              desc:"12-fach, Du fährst SRAM und suchst eine echte Alternative zur Flattop-Kette? Die Connex 12SR WAX ist präzise für moderne 12-fach-Flattop-Antriebe entwickelt und jetzt auch heißgewachst erhältlich: weniger Reibung, leiser Lauf und geringere Schmutzbindung. Sie liefert messerscharfe Schaltvorgänge und maximale Haltbarkeit – ohne Kompromisse. Mit dabei: der legendäre Connex Link – werkzeuglos, in edlem Schwarz, in Sekunden montiert.", 
-                                                              uvp:"74.90",     
-                                                              preis:"30.00", 
-                                                              img:"Artikeder/connex-12SR.jpg" },
+        { id:"c1",  name:"Connex 12SR",                   cat:"Rennrad / MTB",    desc:"12-fach, SRAM Flattop kompatibel. High-Performance – die echte Alternative.", uvp:"",     preis:"", img:"https://medien.connexchain.com/website/bilder/Slider/connex-12SR-s-03.jpg" },
     { id:"c2",  name:"Connex 12S0",                   cat:"Rennrad / MTB",    desc:"12-fach. Hochwertige Materialien, beste Schaltperformance.", uvp:"",     preis:"", img:"https://medien.connexchain.com/website/bilder/home/startseiten-slider/connex-web-slider-12S0.jpg" },
     { id:"c3",  name:"Connex 11SX",                   cat:"Rennrad / MTB",    desc:"11-fach. High Performance-Laschengeometrie.", uvp:"",     preis:"", img:"" },
     { id:"c4",  name:"Connex 11SB",                   cat:"Rennrad / MTB",    desc:"11-fach, Schwarz. Extrem strapazierfähig, Industry Proved.", uvp:"",     preis:"", img:"" },
@@ -341,7 +337,10 @@ function App() {
           <div style=${{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:16,padding:20}}>
             <div style=${{fontSize:15,fontWeight:800,color:"#92400e",marginBottom:6}}>🔗 Connex Vorlage laden</div>
             <p style=${{fontSize:13,color:"#b45309",marginBottom:14,lineHeight:1.5}}>Lädt alle Connex-Produkte vor. Bestehende Produkte werden überschrieben.</p>
-            <${Btn} col="#d97706" onClick=${()=>{saveCamp(CONNEX.c);saveProds(CONNEX.p);}} sx=${{borderRadius:8,padding:"9px 18px",fontSize:13}}>Connex Template aktivieren<//>
+            <div style=${{display:"flex",gap:10,flexWrap:"wrap"}}>
+              <${Btn} col="#d97706" onClick=${()=>{saveCamp(CONNEX.c);saveProds(CONNEX.p);}} sx=${{borderRadius:8,padding:"9px 18px",fontSize:13}}>Template aktivieren<//>
+              <${Btn} col="#92400e" onClick=${()=>{if(window.confirm("Template neu laden und lokale Änderungen überschreiben?")){lsS("camp",CONNEX.c);lsS("prods",CONNEX.p);setCampS(CONNEX.c);setProdsS(CONNEX.p);}}} sx=${{borderRadius:8,padding:"9px 18px",fontSize:13}}>↺ Neu laden (überschreiben)<//>
+            </div>
           </div>
           <div style=${{background:"#fff5f5",border:"1px solid #fecaca",borderRadius:16,padding:20}}>
             <div style=${{fontSize:15,fontWeight:800,color:"#991b1b",marginBottom:6}}>⚠ Neue Kampagne starten</div>
@@ -384,13 +383,14 @@ function App() {
             const hasDis=p.preis&&p.uvp&&parseFloat(p.preis)<parseFloat(p.uvp);
             const dp=p.preis||p.uvp;
             return html`<div key=${p.id} style=${{background:"#fff",borderRadius:14,padding:"14px 16px",border:"1px solid "+(qty>0?"#fca5a5":"#e2e8f0"),outline:qty>0?"3px solid #fee2e2":"none",transition:"all 0.15s"}}>
-              <div style=${{display:"flex",alignItems:"flex-start",gap:12}}>
+              <div style=${{display:"flex",flexDirection:"column",gap:0}}>
                 ${p.img?html`<img src=${p.img} alt=${p.name}
                   onError=${e=>{e.target.style.display="none";}}
-                  style=${{width:240,height:240,objectFit:"contain",borderRadius:8,border:"1px solid #f1f5f9",flexShrink:0,background:"#f8fafc"}} />`:""}
+                  style=${{width:"100%",height:240,objectFit:"contain",borderRadius:10,border:"1px solid #f1f5f9",background:"#f8fafc",marginBottom:12,display:"block"}} />`:""}
+                <div style=${{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
                 <div style=${{flex:1,minWidth:0}}>
-                  <div style=${{fontWeight:700,color:"#0f172a",fontSize:14}}>${p.name}</div>
-                  ${p.desc?html`<p style=${{margin:"4px 0 0",fontSize:12,color:"#64748b",lineHeight:1.5}}>${p.desc}</p>`:""}
+                  <div style=${{fontWeight:700,color:"#0f172a",fontSize:15}}>${p.name}</div>
+                  ${p.desc?html`<p style=${{margin:"4px 0 0",fontSize:13,color:"#64748b",lineHeight:1.5}}>${p.desc}</p>`:""}
                 </div>
                 <div style=${{textAlign:"right",flexShrink:0}}>
                   ${dp?html`<div>
@@ -398,7 +398,7 @@ function App() {
                     <div style=${{fontWeight:800,fontSize:15,color:p.preis?"#dc2626":"#374151"}}>${fmtP(dp)}</div>
                   </div>`:html`<div style=${{fontSize:12,color:"#94a3b8"}}>Preis folgt</div>`}
                 </div>
-              </div>
+                </div>
               <div style=${{marginTop:12,display:"flex",justifyContent:"flex-end",alignItems:"center",gap:12}}>
                 <button onClick=${()=>setQty(p.id,-1)} style=${{width:32,height:32,borderRadius:"50%",border:"1px solid #e2e8f0",background:"transparent",color:"#64748b",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>−</button>
                 <span style=${{fontWeight:800,fontSize:16,minWidth:20,textAlign:"center",color:qty>0?"#dc2626":"#0f172a"}}>${qty}</span>

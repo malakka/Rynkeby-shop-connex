@@ -4,468 +4,390 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sammelbestellung – Team Rynkeby RheinRuhr</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: system-ui, -apple-system, sans-serif; background: #fff; }
-input, button, textarea { font-family: inherit; }
-</style>
+<style>* { box-sizing: border-box; margin: 0; padding: 0; } body { font-family: system-ui, -apple-system, sans-serif; background: #fff; }</style>
 </head>
 <body>
 <div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect } = React;
+<script type="module">
+import { useState, useEffect, createElement as h } from 'https://esm.sh/react@18';
+import { createRoot } from 'https://esm.sh/react-dom@18/client';
+import htm from 'https://esm.sh/htm@3';
+const html = htm.bind(h);
 
-/* ── Constants ──────────────────────────────────────────────────────────── */
-const ADMIN_PASSWORD = "rynkeby2026";
-const JB_BASE = "https://api.jsonbin.io/v3/b";
+const PASS = "rynkeby2026";
+const JB   = "https://api.jsonbin.io/v3/b";
 
-const CONNEX_PRESET = {
-  campaign: {
-    name: "Sammelbestellung Connex Fahrradketten",
-    sponsor: "Connex by Wippermann",
-    deadline: "",
-    description: "Hochwertige Fahrradketten Made in Germany – zum Team-Sonderpreis. Bitte bis zur Frist bestellen!"
-  },
-  products: [
-    { id:"c1",  name:"Connex 12SR",                   cat:"Rennrad / MTB",    desc:"12-fach, SRAM Flattop kompatibel. High-Performance – die echte Alternative.", uvp:"",     preis:"" },
-    { id:"c2",  name:"Connex 12S0",                   cat:"Rennrad / MTB",    desc:"12-fach. Hochwertige Materialien und beste Schaltperformance.",             uvp:"",     preis:"" },
-    { id:"c3",  name:"Connex 11SX",                   cat:"Rennrad / MTB",    desc:"11-fach. High Performance-Laschengeometrie – lässt keine Wünsche offen.",  uvp:"",     preis:"" },
-    { id:"c4",  name:"Connex 11SB",                   cat:"Rennrad / MTB",    desc:"11-fach, Schwarz. Extrem strapazierfähig, 100% Industry Proved.",          uvp:"",     preis:"" },
-    { id:"c5",  name:"Connex 10sG",                   cat:"Rennrad / MTB",    desc:"10-fach, Goldoptik. High Performance-Lasche für maximale Schaltperformance.", uvp:"54.90", preis:"" },
-    { id:"c6",  name:"Connex 11sE",                   cat:"E-Bike",           desc:"11-fach, Edelstahl Innenglied. Spezialist für sportlichen E-MTB-Einsatz.", uvp:"72.90", preis:"" },
-    { id:"c7",  name:"Connex 10sE",                   cat:"E-Bike",           desc:"10-fach, Edelstahl Innenglied. Hält hohen E-Bike-Belastungen stand.",     uvp:"65.90", preis:"" },
-    { id:"c8",  name:"Connex 9sE",                    cat:"E-Bike",           desc:"9-fach, Edelstahl Innenglied. Verstärkte Bauweise für E-Bikes.",           uvp:"62.90", preis:"" },
-    { id:"c9",  name:"Connex 7e8",                    cat:"E-Bike",           desc:"Für schwere E-Bike-Antriebe. Nickel, verstärkte Glieder, extrem belastbar.", uvp:"28.90", preis:"" },
-    { id:"c10", name:"Connex Bio Chain Lube 50ml",    cat:"Pflege & Zubehör", desc:"Biologisch abbaubares Kettenöl. Schützt vor Verschleiß und Korrosion.",    uvp:"7.90",  preis:"" },
-    { id:"c11", name:"Connex Link (Kettenverschluss)", cat:"Pflege & Zubehör", desc:"Das legendäre Kettenschloss – werkzeugfreie Montage und Demontage.",      uvp:"",     preis:"" },
+const CONNEX = {
+  c: { name:"Sammelbestellung Connex Fahrradketten", sponsor:"Connex by Wippermann", deadline:"", description:"Hochwertige Fahrradketten Made in Germany – zum Team-Sonderpreis. Bitte bis zur Frist bestellen!" },
+  p: [
+        { id:"c1",  name:"Connex 12SR",                   cat:"Rennrad / MTB",    desc:"12-fach, SRAM Flattop kompatibel. High-Performance – die echte Alternative.", uvp:"",     preis:"", img:"https://medien.connexchain.com/website/bilder/Slider/connex-12SR-s-03.jpg" },
+    { id:"c2",  name:"Connex 12S0",                   cat:"Rennrad / MTB",    desc:"12-fach. Hochwertige Materialien, beste Schaltperformance.", uvp:"",     preis:"", img:"https://medien.connexchain.com/website/bilder/home/startseiten-slider/connex-web-slider-12S0.jpg" },
+    { id:"c3",  name:"Connex 11SX",                   cat:"Rennrad / MTB",    desc:"11-fach. High Performance-Laschengeometrie.", uvp:"",     preis:"", img:"" },
+    { id:"c4",  name:"Connex 11SB",                   cat:"Rennrad / MTB",    desc:"11-fach, Schwarz. Extrem strapazierfähig, Industry Proved.", uvp:"",     preis:"", img:"" },
+    { id:"c5",  name:"Connex 10sG",                   cat:"Rennrad / MTB",    desc:"10-fach, Goldoptik. High Performance-Lasche.", uvp:"54.90", preis:"", img:"https://shop.connexchain.com/media/cb/04/58/1593009799/Connex-Fahrradkette-10SG-01.jpg" },
+    { id:"c6",  name:"Connex 11sE",                   cat:"E-Bike",           desc:"11-fach, Edelstahl Innenglied. Für sportlichen E-MTB-Einsatz.", uvp:"72.90", preis:"", img:"https://shop.connexchain.com/media/fe/dd/89/1593094795/Connex-Fahrradkette-11SE-01.jpg" },
+    { id:"c7",  name:"Connex 10sE",                   cat:"E-Bike",           desc:"10-fach, Edelstahl Innenglied. Hält E-Bike-Belastungen stand.", uvp:"65.90", preis:"", img:"https://shop.connexchain.com/media/99/a2/e1/1593007615/Connex-Fahrradkette-10SE-01.jpg" },
+    { id:"c8",  name:"Connex 9sE",                    cat:"E-Bike",           desc:"9-fach, Edelstahl Innenglied. Verstärkt für E-Bikes.", uvp:"62.90", preis:"", img:"https://shop.connexchain.com/media/f8/7d/b0/1593079289/Connex-Fahrradkette-9SE-01.jpg" },
+    { id:"c9",  name:"Connex 7e8",                    cat:"E-Bike",           desc:"Für schwere E-Bike-Antriebe. Nickel, extrem belastbar.", uvp:"28.90", preis:"", img:"https://shop.connexchain.com/media/01/17/e8/1593090733/Connex-Fahrradkette-7E8-01.jpg" },
+    { id:"c10", name:"Connex Bio Chain Lube 50ml",    cat:"Pflege & Zubehör", desc:"Biologisch abbaubares Kettenöl, schützt vor Verschleiß.", uvp:"7.90",  preis:"", img:"https://shop.connexchain.com/media/50/11/93/1708689554/Connex-CKS-Kettenoel-50ml-01.jpg" },
+    { id:"c11", name:"Connex Link (Kettenverschluss)", cat:"Pflege & Zubehör", desc:"Legendäres Kettenschloss – werkzeugfreie Montage.", uvp:"",     preis:"", img:"" },
   ]
 };
 
-/* ── Helpers ────────────────────────────────────────────────────────────── */
-const genId  = () => Date.now().toString(36) + Math.random().toString(36).slice(2,5);
-const toNum  = v => { const n = parseFloat(v); return (isNaN(n)||n===0) ? null : n; };
-const fmtP   = v => { const n = toNum(v); return n ? n.toFixed(2).replace(".",",") + "\u202f€" : null; };
+const gId  = () => Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+const toN  = v  => { const n = parseFloat(v); return (isNaN(n)||n===0) ? null : n; };
+const fmtP = v  => { const n = toN(v); return n ? n.toFixed(2).replace(".",",") + "\u202f\u20ac" : null; };
+const lsG  = k  => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } };
+const lsS  = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
-const ls = {
-  get: k => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
-  set: (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+const jbFetch = async (key, bin) => {
+  try {
+    const r = await fetch(JB+"/"+bin+"/latest", { headers:{ "X-Master-Key":key, "X-Bin-Meta":"false" } });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d.record) ? d.record : [];
+  } catch { return null; }
+};
+const jbSave = async (key, bin, data) => {
+  try {
+    const r = await fetch(JB+"/"+bin, { method:"PUT", headers:{ "Content-Type":"application/json","X-Master-Key":key }, body:JSON.stringify(data) });
+    return r.ok;
+  } catch { return false; }
 };
 
-const jb = {
-  fetch: async (key, bin) => {
-    try {
-      const r = await fetch(`${JB_BASE}/${bin}/latest`, { headers: { "X-Master-Key": key, "X-Bin-Meta": "false" } });
-      if (!r.ok) return null;
-      const d = await r.json();
-      return Array.isArray(d.record) ? d.record : [];
-    } catch { return null; }
-  },
-  save: async (key, bin, data) => {
-    try {
-      const r = await fetch(`${JB_BASE}/${bin}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "X-Master-Key": key },
-        body: JSON.stringify(data)
-      });
-      return r.ok;
-    } catch { return false; }
-  }
-};
+const IS = { border:"1px solid #e2e8f0", borderRadius:10, padding:"10px 14px", fontSize:14, outline:"none", width:"100%", background:"#fff", fontFamily:"inherit" };
+const lbl = { fontSize:11, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:4, display:"block" };
 
-/* ── Tiny components ────────────────────────────────────────────────────── */
-const IS = { border:"1px solid #e2e8f0", borderRadius:10, padding:"10px 14px", fontSize:14, outline:"none", width:"100%", background:"#fff" };
-const Btn = ({ children, onClick, col="#dc2626", dis=false, sx={} }) => (
-  <button onClick={onClick} disabled={dis} style={{ background:dis?"#f1f5f9":col, color:dis?"#94a3b8":"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontSize:14, fontWeight:700, cursor:dis?"not-allowed":"pointer", ...sx }}>{children}</button>
-);
+function Btn({ children, onClick, col, dis, sx }) {
+  const c = col||"#dc2626", d = dis||false;
+  return html`<button onClick=${onClick} disabled=${d} style=${{ background:d?"#f1f5f9":c, color:d?"#94a3b8":"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontSize:14, fontWeight:700, cursor:d?"not-allowed":"pointer", fontFamily:"inherit", ...(sx||{}) }}>${children}</button>`;
+}
 
 function PForm({ p, onChange, onSave, onCancel }) {
   const s = { ...IS, borderRadius:8, padding:"8px 12px", fontSize:13 };
   const fields = [
-    { k:"name", l:"Artikelname", span:2 }, { k:"cat", l:"Kategorie", span:1 },
-    { k:"desc", l:"Beschreibung", span:2 }, { k:"uvp", l:"UVP (€)", span:1, t:"number" }, { k:"preis", l:"Sammelpreis (€)", span:1, t:"number" }
+    { k:"name",  l:"Artikelname",     span:2 },
+    { k:"cat",   l:"Kategorie",       span:1 },
+    { k:"desc",  l:"Beschreibung",    span:2 },
+    { k:"img",   l:"Foto-URL",       span:2 },
+    { k:"uvp",   l:"UVP (\u20ac)",    span:1, t:"number" },
+    { k:"preis", l:"Sammelpreis (\u20ac)", span:1, t:"number" }
   ];
-  return (
-    <div style={{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:12, padding:16, marginBottom:10 }}>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
-        {fields.map(f => (
-          <div key={f.k} style={{ gridColumn:f.span===2?"1 / -1":"auto" }}>
-            <label style={{ fontSize:11, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:3, display:"block" }}>{f.l}</label>
-            <input type={f.t||"text"} step="0.01" style={s} value={p[f.k]||""} onChange={e => onChange({...p,[f.k]:e.target.value})} />
-          </div>
-        ))}
-      </div>
-      <div style={{ display:"flex", gap:8 }}>
-        <Btn onClick={onSave} sx={{ padding:"8px 16px", fontSize:13, borderRadius:8 }}>Speichern</Btn>
-        <button onClick={onCancel} style={{ background:"transparent", border:"1px solid #e2e8f0", color:"#64748b", borderRadius:8, padding:"8px 16px", fontSize:13, cursor:"pointer" }}>Abbrechen</button>
-      </div>
+  return html`<div style=${{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:12, padding:16, marginBottom:10 }}>
+    <div style=${{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
+      ${fields.map(f => html`<div key=${f.k} style=${{ gridColumn:f.span===2?"1 / -1":"auto" }}>
+        <label style=${lbl}>${f.l}</label>
+        <input type=${f.t||"text"} step="0.01" style=${s} value=${p[f.k]||""} onChange=${e => onChange({...p,[f.k]:e.target.value})} />
+      </div>`)}
     </div>
-  );
+    <div style=${{ display:"flex", gap:8 }}>
+      <${Btn} onClick=${onSave} sx=${{ padding:"8px 16px", fontSize:13, borderRadius:8 }}>Speichern<//>
+      <button onClick=${onCancel} style=${{ background:"transparent", border:"1px solid #e2e8f0", color:"#64748b", borderRadius:8, padding:"8px 16px", fontSize:13, cursor:"pointer", fontFamily:"inherit" }}>Abbrechen</button>
+    </div>
+  </div>`;
 }
 
-/* ── App ────────────────────────────────────────────────────────────────── */
 function App() {
-  const [ready, setReady]     = useState(false);
-  const [page, setPage]       = useState("order");
-  const [campaign, setCamp]   = useState({ name:"", sponsor:"", deadline:"", description:"" });
-  const [products, setProds]  = useState([]);
-  const [orders, setOrds]     = useState([]);
-  const [jbKey, setJbKey]     = useState("");
-  const [jbBin, setJbBin]     = useState("");
-  const [cart, setCart]       = useState({});
-  const [buyer, setBuyer]     = useState({ name:"", email:"", note:"" });
-  const [adminPass, setAP]    = useState("");
-  const [adminOk, setAOk]     = useState(false);
-  const [adminTab, setATab]   = useState("orders");
-  const [editP, setEditP]     = useState(null);
-  const [newP, setNewP]       = useState(null);
-  const [exp, setExp]         = useState(null);
-  const [submitting, setSub]  = useState(false);
-  const [subErr, setSubErr]   = useState("");
-  const [fetching, setFetch]  = useState(false);
+  const [ready,  setReady]  = useState(false);
+  const [page,   setPage]   = useState("order");
+  const [camp,   setCampS]  = useState({ name:"", sponsor:"", deadline:"", description:"" });
+  const [prods,  setProdsS] = useState([]);
+  const [orders, setOrdsS]  = useState([]);
+  const [jbKey,  setJbKeyS] = useState("");
+  const [jbBin,  setJbBinS] = useState("");
+  const [cart,   setCart]   = useState({});
+  const [buyer,  setBuyer]  = useState({ name:"", email:"", note:"" });
+  const [ap,     setAp]     = useState("");
+  const [aok,    setAok]    = useState(false);
+  const [atab,   setAtab]   = useState("orders");
+  const [editP,  setEditP]  = useState(null);
+  const [newP,   setNewP]   = useState(null);
+  const [exp,    setExp]    = useState(null);
+  const [sub,    setSub]    = useState(false);
+  const [subErr, setSubErr] = useState("");
+  const [fetching,setFetch] = useState(false);
 
   useEffect(() => {
-    const c = ls.get("camp"); if (c) setCamp(c);
-    const p = ls.get("prods"); if (p) setProds(p);
-    const k = ls.get("jbKey"); if (k) setJbKey(k);
-    const b = ls.get("jbBin"); if (b) setJbBin(b);
+    const c = lsG("camp"); if(c) setCampS(c);
+    const p = lsG("prods"); if(p) setProdsS(p);
+    const k = lsG("jbKey"); if(k) setJbKeyS(k);
+    const b = lsG("jbBin"); if(b) setJbBinS(b);
     setReady(true);
   }, []);
 
-  const saveCamp  = c => { setCamp(c);  ls.set("camp", c); };
-  const saveProds = p => { setProds(p); ls.set("prods", p); };
-  const saveJbKey = k => { setJbKey(k); ls.set("jbKey", k); };
-  const saveJbBin = b => { setJbBin(b); ls.set("jbBin", b); };
+  const saveCamp  = c => { setCampS(c);  lsS("camp",c); };
+  const saveProds = p => { setProdsS(p); lsS("prods",p); };
+  const saveKey   = k => { setJbKeyS(k); lsS("jbKey",k); };
+  const saveBin   = b => { setJbBinS(b); lsS("jbBin",b); };
+  const saveOrds  = o => { setOrdsS(o); };
 
   const loadOrders = async () => {
-    if (!jbKey || !jbBin) return;
+    if(!jbKey||!jbBin) return;
     setFetch(true);
-    const data = await jb.fetch(jbKey, jbBin);
-    if (data) setOrds(data);
+    const d = await jbFetch(jbKey, jbBin);
+    if(d) setOrdsS(d);
     setFetch(false);
   };
 
-  useEffect(() => { if (adminOk) loadOrders(); }, [adminOk]);
+  useEffect(() => { if(aok) loadOrders(); }, [aok]);
 
-  const cartQty = Object.values(cart).reduce((a,b) => a+b, 0);
-  const cartTot = Object.entries(cart).reduce((s,[id,qty]) => {
-    const p = products.find(x => x.id===id); return s + qty*(toNum(p?.preis)||toNum(p?.uvp)||0);
-  }, 0);
+  const cartQty = Object.values(cart).reduce((a,b)=>a+b,0);
+  const cartTot = Object.entries(cart).reduce((s,[id,qty])=>{
+    const p = prods.find(x=>x.id===id); return s+qty*(toN(p?.preis)||toN(p?.uvp)||0);
+  },0);
 
-  const setQty = (id, d) => setCart(c => ({...c, [id]: Math.max(0,(c[id]||0)+d)}));
+  const setQty = (id,d) => setCart(c=>({...c,[id]:Math.max(0,(c[id]||0)+d)}));
 
   const submit = async () => {
-    if (!buyer.name.trim() || !buyer.email.trim() || cartQty===0) return;
-    if (!jbKey || !jbBin) { setSubErr("Der Administrator muss noch die JSONBin-Verbindung einrichten."); return; }
+    if(!buyer.name.trim()||!buyer.email.trim()||cartQty===0) return;
+    if(!jbKey||!jbBin){ setSubErr("Admin muss noch die JSONBin-Verbindung einrichten."); return; }
     setSub(true); setSubErr("");
     const items = Object.entries(cart).filter(([_,q])=>q>0).map(([id,qty])=>{
-      const p = products.find(x=>x.id===id);
-      return { productId:id, name:p.name, qty, preis:toNum(p.preis)||toNum(p.uvp)||0 };
+      const p = prods.find(x=>x.id===id);
+      return { productId:id, name:p.name, qty, preis:toN(p.preis)||toN(p.uvp)||0 };
     });
-    const newOrder = { id:genId(), ts:new Date().toISOString(), buyer:{...buyer}, items };
-    // fetch current, append, save
-    const current = await jb.fetch(jbKey, jbBin) || [];
-    const ok = await jb.save(jbKey, jbBin, [...current, newOrder]);
+    const cur = await jbFetch(jbKey,jbBin)||[];
+    const ok  = await jbSave(jbKey,jbBin,[...cur,{id:gId(),ts:new Date().toISOString(),buyer:{...buyer},items}]);
     setSub(false);
-    if (ok) { setCart({}); setBuyer({name:"",email:"",note:""}); setPage("success"); }
+    if(ok){ setCart({}); setBuyer({name:"",email:"",note:""}); setPage("success"); }
     else setSubErr("Fehler beim Speichern – bitte nochmal versuchen.");
   };
 
   const exportCSV = () => {
     const hdr = ["Datum","Name","E-Mail","Artikel","Kategorie","Menge","Einzelpreis","Gesamt","Notiz"];
-    const rows = orders.flatMap(o => o.items.map(i => {
-      const pr = products.find(x=>x.id===i.productId);
-      return [new Date(o.ts).toLocaleDateString("de-DE"), o.buyer.name, o.buyer.email, i.name, pr?.cat||"", i.qty,
-        i.preis ? i.preis.toFixed(2).replace(".",",")+"\u202f€" : "",
-        (i.qty*i.preis).toFixed(2).replace(".",",")+"\u202f€", o.buyer.note||""];
+    const rows = orders.flatMap(o=>o.items.map(i=>{
+      const pr = prods.find(x=>x.id===i.productId);
+      return [new Date(o.ts).toLocaleDateString("de-DE"),o.buyer.name,o.buyer.email,i.name,pr?.cat||"",i.qty,
+        i.preis?i.preis.toFixed(2).replace(".",",")+"\u20ac":"",
+        (i.qty*i.preis).toFixed(2).replace(".",",")+"\u20ac",o.buyer.note||""];
     }));
-    const csv = "\uFEFF" + [hdr,...rows].map(r => r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(";")).join("\n");
+    const csv = "\uFEFF"+[hdr,...rows].map(r=>r.map(v=>"\""+String(v).replace(/"/g,'""')+"\"").join(";")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
-    a.download = `bestellungen-${(campaign.sponsor||"rynkeby").toLowerCase().replace(/[^a-z0-9]+/g,"-")}.csv`;
+    a.download = "bestellungen-"+(camp.sponsor||"rynkeby").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".csv";
     a.click();
   };
 
-  const base = { minHeight:"100vh" };
-  if (!ready) return <div style={{...base,display:"flex",alignItems:"center",justifyContent:"center"}}><p style={{color:"#94a3b8",fontSize:14}}>Wird geladen…</p></div>;
+  if(!ready) return html`<div style=${{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><p style=${{color:"#94a3b8",fontSize:14}}>Wird geladen…</p></div>`;
 
-  /* SUCCESS */
-  if (page==="success") return (
-    <div style={{...base,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center"}}>
-      <div style={{width:72,height:72,borderRadius:"50%",background:"#fee2e2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,marginBottom:20}}>✓</div>
-      <h1 style={{fontSize:26,fontWeight:800,color:"#dc2626",marginBottom:10}}>Bestellung eingegangen!</h1>
-      <p style={{color:"#64748b",fontSize:15,marginBottom:28,maxWidth:360,lineHeight:1.6}}>Danke! Wir melden uns, sobald die Sammelbestellung abgeschlossen ist.</p>
-      <Btn onClick={()=>setPage("order")} sx={{padding:"12px 28px",fontSize:15,borderRadius:12}}>Zurück zur Übersicht</Btn>
+  if(page==="success") return html`<div style=${{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center"}}>
+    <div style=${{width:72,height:72,borderRadius:"50%",background:"#fee2e2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:36,marginBottom:20}}>✓</div>
+    <h1 style=${{fontSize:26,fontWeight:800,color:"#dc2626",marginBottom:10}}>Bestellung eingegangen!</h1>
+    <p style=${{color:"#64748b",fontSize:15,marginBottom:28,maxWidth:360,lineHeight:1.6}}>Danke! Wir melden uns, sobald die Sammelbestellung abgeschlossen ist.</p>
+    <${Btn} onClick=${()=>setPage("order")} sx=${{padding:"12px 28px",fontSize:15,borderRadius:12}}>Zurück zur Übersicht<//>
+  </div>`;
+
+  if(page==="admin"&&!aok) return html`<div style=${{minHeight:"100vh",background:"#f8fafc",display:"flex",alignItems:"center",justifyContent:"center"}}>
+    <div style=${{background:"#fff",borderRadius:18,border:"1px solid #e2e8f0",padding:32,width:"100%",maxWidth:340}}>
+      <h2 style=${{fontSize:20,fontWeight:800,color:"#0f172a",marginBottom:20}}>Admin-Bereich</h2>
+      <input type="password" placeholder="Passwort" style=${{...IS,marginBottom:10}}
+        value=${ap} onChange=${e=>setAp(e.target.value)}
+        onKeyDown=${e=>e.key==="Enter"&&setAok(ap===PASS)} />
+      ${ap&&ap!==PASS?html`<p style=${{color:"#dc2626",fontSize:13,marginBottom:10}}>Falsches Passwort</p>`:""}
+      <${Btn} onClick=${()=>setAok(ap===PASS)} sx=${{width:"100%",marginBottom:8,fontSize:14,padding:11}}>Anmelden<//>
+      <button onClick=${()=>setPage("order")} style=${{width:"100%",background:"transparent",border:"none",color:"#94a3b8",fontSize:13,cursor:"pointer",padding:8,fontFamily:"inherit"}}>← Zurück</button>
     </div>
-  );
+  </div>`;
 
-  /* ADMIN PASSWORD */
-  if (page==="admin" && !adminOk) return (
-    <div style={{...base,background:"#f8fafc",display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{background:"#fff",borderRadius:18,border:"1px solid #e2e8f0",padding:32,width:"100%",maxWidth:340}}>
-        <h2 style={{fontSize:20,fontWeight:800,color:"#0f172a",marginBottom:20}}>Admin-Bereich</h2>
-        <input type="password" placeholder="Passwort" style={{...IS,marginBottom:10}}
-          value={adminPass} onChange={e=>setAP(e.target.value)}
-          onKeyDown={e=>e.key==="Enter"&&setAOk(adminPass===ADMIN_PASSWORD)} />
-        {adminPass && adminPass!==ADMIN_PASSWORD && <p style={{color:"#dc2626",fontSize:13,marginBottom:10}}>Falsches Passwort</p>}
-        <Btn onClick={()=>setAOk(adminPass===ADMIN_PASSWORD)} sx={{width:"100%",marginBottom:8,fontSize:14,padding:11}}>Anmelden</Btn>
-        <button onClick={()=>setPage("order")} style={{width:"100%",background:"transparent",border:"none",color:"#94a3b8",fontSize:13,cursor:"pointer",padding:8}}>← Zurück</button>
+  if(page==="admin"&&aok) {
+    const sum={};
+    orders.forEach(o=>o.items.forEach(i=>{sum[i.name]=(sum[i.name]||0)+i.qty;}));
+    const tb = k => ({ background:"transparent",border:"none",fontFamily:"inherit",borderBottom:"2px solid "+(atab===k?"#dc2626":"transparent"),color:atab===k?"#dc2626":"#64748b",fontWeight:700,fontSize:13,padding:"12px 16px 10px",cursor:"pointer" });
+
+    return html`<div style=${{minHeight:"100vh",background:"#f8fafc"}}>
+      <div style=${{background:"#fff",borderBottom:"1px solid #e2e8f0",padding:"16px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div>
+          <div style=${{fontSize:11,color:"#94a3b8",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:2}}>Admin · Team Rynkeby RheinRuhr</div>
+          <div style=${{fontSize:17,fontWeight:800,color:"#0f172a"}}>${camp.name||"Sammelbestellung"}</div>
+        </div>
+        <button onClick=${()=>{setAok(false);setPage("order");}} style=${{background:"transparent",border:"none",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>← Zur Bestellung</button>
       </div>
-    </div>
-  );
+      <div style=${{background:"#fff",borderBottom:"1px solid #e2e8f0",display:"flex",padding:"0 24px"}}>
+        <button style=${tb("orders")} onClick=${()=>setAtab("orders")}>Bestellungen (${orders.length})</button>
+        <button style=${tb("products")} onClick=${()=>setAtab("products")}>Produkte (${prods.length})</button>
+        <button style=${tb("settings")} onClick=${()=>setAtab("settings")}>Einstellungen</button>
+      </div>
+      <div style=${{maxWidth:900,margin:"0 auto",padding:24}}>
 
-  /* ADMIN MAIN */
-  if (page==="admin" && adminOk) {
-    const sum = {};
-    orders.forEach(o => o.items.forEach(i => { sum[i.name]=(sum[i.name]||0)+i.qty; }));
-    return (
-      <div style={{...base,background:"#f8fafc"}}>
-        <div style={{background:"#fff",borderBottom:"1px solid #e2e8f0",padding:"16px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div>
-            <div style={{fontSize:11,color:"#94a3b8",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:2}}>Admin · Team Rynkeby RheinRuhr</div>
-            <div style={{fontSize:17,fontWeight:800,color:"#0f172a"}}>{campaign.name||"Sammelbestellung"}</div>
+        ${atab==="orders"?html`<div>
+          <div style=${{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+            <div style=${{fontSize:15,fontWeight:800,color:"#0f172a"}}>Eingegangene Bestellungen</div>
+            <div style=${{display:"flex",gap:8}}>
+              <${Btn} onClick=${loadOrders} col="#475569" sx=${{padding:"8px 14px",fontSize:13,borderRadius:8}}>${fetching?"Lädt…":"↻ Aktualisieren"}<//>
+              ${orders.length>0?html`<${Btn} onClick=${exportCSV} col="#0f172a" sx=${{padding:"8px 14px",fontSize:13,borderRadius:8}}>📊 CSV Export<//>` :""}
+            </div>
           </div>
-          <button onClick={()=>{setAOk(false);setPage("order");}} style={{background:"transparent",border:"none",color:"#94a3b8",fontSize:13,cursor:"pointer"}}>← Zur Bestellung</button>
-        </div>
-        <div style={{background:"#fff",borderBottom:"1px solid #e2e8f0",display:"flex",padding:"0 24px"}}>
-          {[{k:"orders",l:`Bestellungen (${orders.length})`},{k:"products",l:`Produkte (${products.length})`},{k:"settings",l:"Einstellungen"}].map(t=>(
-            <button key={t.k} onClick={()=>setATab(t.k)} style={{background:"transparent",border:"none",borderBottom:`2px solid ${adminTab===t.k?"#dc2626":"transparent"}`,color:adminTab===t.k?"#dc2626":"#64748b",fontWeight:700,fontSize:13,padding:"12px 16px 10px",cursor:"pointer"}}>{t.l}</button>
-          ))}
-        </div>
-        <div style={{maxWidth:900,margin:"0 auto",padding:24}}>
-
-          {/* ORDERS */}
-          {adminTab==="orders" && (
-            <div>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-                <div style={{fontSize:15,fontWeight:800,color:"#0f172a"}}>Eingegangene Bestellungen</div>
-                <div style={{display:"flex",gap:8}}>
-                  <Btn onClick={loadOrders} col="#475569" sx={{padding:"8px 14px",fontSize:13,borderRadius:8,opacity:fetching?0.6:1}}>
-                    {fetching?"Lädt…":"↻ Aktualisieren"}
-                  </Btn>
-                  {orders.length>0 && <Btn onClick={exportCSV} col="#0f172a" sx={{padding:"8px 14px",fontSize:13,borderRadius:8}}>📊 CSV Export</Btn>}
-                </div>
+          ${!jbKey||!jbBin?html`<div style=${{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:12,padding:16,fontSize:13,color:"#92400e"}}>⚠ Bitte JSONBin-Zugangsdaten unter Einstellungen hinterlegen.</div>`:html`<div>
+            ${Object.keys(sum).length>0?html`<div style=${{marginBottom:20}}>
+              <div style=${{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Gesamtübersicht</div>
+              <div style=${{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:10,marginBottom:16}}>
+                ${Object.entries(sum).map(([name,qty])=>html`<div key=${name} style=${{background:"#fff",border:"1px solid #e2e8f0",borderRadius:12,padding:"14px 16px"}}>
+                  <div style=${{fontSize:30,fontWeight:800,color:"#dc2626",lineHeight:1}}>${qty}×</div>
+                  <div style=${{fontSize:12,color:"#475569",fontWeight:600,marginTop:5,lineHeight:1.3}}>${name}</div>
+                </div>`)}
               </div>
-              {!jbKey||!jbBin ? (
-                <div style={{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:12,padding:16,fontSize:13,color:"#92400e"}}>
-                  ⚠ Bitte zuerst die JSONBin-Zugangsdaten unter <b>Einstellungen</b> hinterlegen.
-                </div>
-              ) : (
-                <>
-                  {Object.keys(sum).length>0 && (
-                    <div style={{marginBottom:20}}>
-                      <div style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Gesamtübersicht</div>
-                      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:10,marginBottom:16}}>
-                        {Object.entries(sum).map(([name,qty])=>(
-                          <div key={name} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:12,padding:"14px 16px"}}>
-                            <div style={{fontSize:30,fontWeight:800,color:"#dc2626",lineHeight:1}}>{qty}×</div>
-                            <div style={{fontSize:12,color:"#475569",fontWeight:600,marginTop:5,lineHeight:1.3}}>{name}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {orders.length===0
-                    ? <div style={{textAlign:"center",padding:"48px 0",color:"#94a3b8",fontSize:14}}>Noch keine Bestellungen. Klicke auf "Aktualisieren" um zu laden.</div>
-                    : <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                        {orders.map(o=>(
-                          <div key={o.id} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:12,overflow:"hidden"}}>
-                            <button onClick={()=>setExp(exp===o.id?null:o.id)} style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 18px",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
-                              <div><span style={{fontWeight:700,color:"#0f172a",fontSize:14}}>{o.buyer.name}</span><span style={{color:"#94a3b8",fontSize:13,marginLeft:10}}>{o.buyer.email}</span></div>
-                              <div style={{textAlign:"right"}}>
-                                <div style={{fontSize:11,color:"#94a3b8"}}>{new Date(o.ts).toLocaleDateString("de-DE")}</div>
-                                <div style={{fontSize:13,color:"#64748b"}}>{o.items.reduce((s,i)=>s+i.qty,0)} Artikel</div>
-                              </div>
-                            </button>
-                            {exp===o.id && (
-                              <div style={{borderTop:"1px solid #f1f5f9",padding:"12px 18px",background:"#f8fafc"}}>
-                                {o.items.map((i,idx)=>(
-                                  <div key={idx} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"3px 0"}}>
-                                    <span style={{color:"#374151"}}>{i.qty}× {i.name}</span>
-                                    <span style={{color:"#64748b"}}>{i.preis?fmtP(i.qty*i.preis):"–"}</span>
-                                  </div>
-                                ))}
-                                {o.buyer.note && <p style={{fontSize:12,color:"#94a3b8",marginTop:8,fontStyle:"italic"}}>„{o.buyer.note}"</p>}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                  }
-                </>
-              )}
-            </div>
-          )}
-
-          {/* PRODUCTS */}
-          {adminTab==="products" && (
-            <div>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-                <div style={{fontSize:15,fontWeight:800,color:"#0f172a"}}>Produkte</div>
-                <Btn onClick={()=>setNewP({id:genId(),name:"",cat:"",desc:"",uvp:"",preis:""})} sx={{padding:"8px 16px",fontSize:13,borderRadius:8}}>+ Hinzufügen</Btn>
-              </div>
-              {newP && <PForm p={newP} onChange={setNewP} onSave={()=>{saveProds([...products,newP]);setNewP(null);}} onCancel={()=>setNewP(null)} />}
-              <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {products.map(p=>
-                  editP?.id===p.id
-                    ? <PForm key={p.id} p={editP} onChange={setEditP} onSave={()=>{saveProds(products.map(x=>x.id===editP.id?editP:x));setEditP(null);}} onCancel={()=>setEditP(null)} />
-                    : <div key={p.id} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:12,padding:"13px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontWeight:700,fontSize:14,color:"#0f172a"}}>{p.name}</div>
-                          <div style={{fontSize:12,color:"#94a3b8",marginTop:2}}>
-                            {p.cat && <span style={{marginRight:10}}>{p.cat}</span>}
-                            {p.uvp && <span style={{marginRight:10}}>UVP: {fmtP(p.uvp)}</span>}
-                            {p.preis ? <span style={{color:"#dc2626",fontWeight:700}}>Sammelpreis: {fmtP(p.preis)}</span> : <span style={{color:"#f59e0b",fontWeight:600}}>⚠ Sammelpreis fehlt</span>}
-                          </div>
-                        </div>
-                        <div style={{display:"flex",gap:8,flexShrink:0}}>
-                          <button onClick={()=>setEditP({...p})} style={{fontSize:12,color:"#64748b",border:"1px solid #e2e8f0",background:"transparent",borderRadius:8,padding:"6px 12px",cursor:"pointer"}}>Bearbeiten</button>
-                          <button onClick={()=>saveProds(products.filter(x=>x.id!==p.id))} style={{fontSize:12,color:"#dc2626",border:"1px solid #fecaca",background:"transparent",borderRadius:8,padding:"6px 12px",cursor:"pointer"}}>Löschen</button>
-                        </div>
-                      </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* SETTINGS */}
-          {adminTab==="settings" && (
-            <div style={{display:"flex",flexDirection:"column",gap:20}}>
-
-              {/* JSONBin credentials */}
-              <div style={{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:16,padding:24}}>
-                <div style={{fontSize:15,fontWeight:800,color:"#1e40af",marginBottom:6}}>🔗 JSONBin.io Verbindung</div>
-                <p style={{fontSize:13,color:"#3b82f6",marginBottom:16,lineHeight:1.6}}>
-                  Bestellungen werden bei JSONBin.io gespeichert (kostenlos).<br/>
-                  <b>Setup:</b> 1. Account auf <a href="https://jsonbin.io" target="_blank" style={{color:"#1d4ed8"}}>jsonbin.io</a> erstellen → 2. API Key kopieren → 3. Neuen Bin anlegen (Inhalt: <code style={{background:"#dbeafe",padding:"0 4px",borderRadius:4}}>[]</code>) → 4. Bin ID kopieren → 5. Hier eintragen.
-                </p>
-                <div style={{display:"grid",gap:10}}>
-                  <div>
-                    <label style={{fontSize:11,fontWeight:700,color:"#3b82f6",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:4,display:"block"}}>API Key (X-Master-Key)</label>
-                    <input type="password" style={{...IS,borderColor:"#bfdbfe"}} placeholder="$2a$10$..." value={jbKey} onChange={e=>{saveJbKey(e.target.value);}} />
+            </div>`:""}
+            ${orders.length===0?html`<div style=${{textAlign:"center",padding:"48px 0",color:"#94a3b8",fontSize:14}}>Noch keine Bestellungen. Klicke auf Aktualisieren.</div>`:html`<div style=${{display:"flex",flexDirection:"column",gap:10}}>
+              ${orders.map(o=>html`<div key=${o.id} style=${{background:"#fff",border:"1px solid #e2e8f0",borderRadius:12,overflow:"hidden"}}>
+                <button onClick=${()=>setExp(exp===o.id?null:o.id)} style=${{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 18px",background:"transparent",border:"none",cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+                  <div><span style=${{fontWeight:700,color:"#0f172a",fontSize:14}}>${o.buyer.name}</span><span style=${{color:"#94a3b8",fontSize:13,marginLeft:10}}>${o.buyer.email}</span></div>
+                  <div style=${{textAlign:"right"}}>
+                    <div style=${{fontSize:11,color:"#94a3b8"}}>${new Date(o.ts).toLocaleDateString("de-DE")}</div>
+                    <div style=${{fontSize:13,color:"#64748b"}}>${o.items.reduce((s,i)=>s+i.qty,0)} Artikel</div>
                   </div>
-                  <div>
-                    <label style={{fontSize:11,fontWeight:700,color:"#3b82f6",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:4,display:"block"}}>Bin ID</label>
-                    <input style={{...IS,borderColor:"#bfdbfe"}} placeholder="6…" value={jbBin} onChange={e=>{saveJbBin(e.target.value);}} />
-                  </div>
+                </button>
+                ${exp===o.id?html`<div style=${{borderTop:"1px solid #f1f5f9",padding:"12px 18px",background:"#f8fafc"}}>
+                  ${o.items.map((i,ix)=>html`<div key=${ix} style=${{display:"flex",justifyContent:"space-between",fontSize:13,padding:"3px 0"}}>
+                    <span style=${{color:"#374151"}}>${i.qty}× ${i.name}</span>
+                    <span style=${{color:"#64748b"}}>${i.preis?fmtP(i.qty*i.preis):"–"}</span>
+                  </div>`)}
+                  ${o.buyer.note?html`<p style=${{fontSize:12,color:"#94a3b8",marginTop:8,fontStyle:"italic"}}>"${o.buyer.note}"</p>`:""}
+                </div>`:""}
+              </div>`)}
+            </div>`}
+          </div>`}
+        </div>`:""}
+
+        ${atab==="products"?html`<div>
+          <div style=${{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+            <div style=${{fontSize:15,fontWeight:800,color:"#0f172a"}}>Produkte</div>
+            <${Btn} onClick=${()=>setNewP({id:gId(),name:"",cat:"",desc:"",img:"",uvp:"",preis:""})} sx=${{padding:"8px 16px",fontSize:13,borderRadius:8}}>+ Hinzufügen<//>
+          </div>
+          ${newP?html`<${PForm} p=${newP} onChange=${setNewP} onSave=${()=>{saveProds([...prods,newP]);setNewP(null);}} onCancel=${()=>setNewP(null)} />` :""}
+          <div style=${{display:"flex",flexDirection:"column",gap:8}}>
+            ${prods.map(p=>editP?.id===p.id?html`<${PForm} key=${p.id} p=${editP} onChange=${setEditP}
+                onSave=${()=>{saveProds(prods.map(x=>x.id===editP.id?editP:x));setEditP(null);}}
+                onCancel=${()=>setEditP(null)} />`:html`<div key=${p.id} style=${{background:"#fff",border:"1px solid #e2e8f0",borderRadius:12,padding:"13px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+              <div style=${{flex:1,minWidth:0}}>
+                <div style=${{fontWeight:700,fontSize:14,color:"#0f172a"}}>${p.name}</div>
+                <div style=${{fontSize:12,color:"#94a3b8",marginTop:2}}>
+                  ${p.cat?html`<span style=${{marginRight:10}}>${p.cat}</span>`:""}
+                  ${p.uvp?html`<span style=${{marginRight:10}}>UVP: ${fmtP(p.uvp)}</span>`:""}
+                  ${p.preis?html`<span style=${{color:"#dc2626",fontWeight:700}}>Sammelpreis: ${fmtP(p.preis)}</span>`:html`<span style=${{color:"#f59e0b",fontWeight:600}}>⚠ Sammelpreis fehlt</span>`}
                 </div>
               </div>
-
-              {/* Campaign */}
-              <div style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:16,padding:24}}>
-                <div style={{fontSize:15,fontWeight:800,color:"#0f172a",marginBottom:16}}>Kampagne</div>
-                <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                  {[{k:"name",l:"Titel",ph:"z.B. Sammelbestellung Connex Ketten"},{k:"sponsor",l:"Sponsor",ph:"z.B. Connex by Wippermann"},{k:"deadline",l:"Bestellfrist",ph:"z.B. 15. März 2026"},{k:"description",l:"Info-Text",ph:"Kurze Beschreibung für die Mitglieder"}].map(f=>(
-                    <div key={f.k}>
-                      <label style={{fontSize:11,fontWeight:700,color:"#64748b",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4,display:"block"}}>{f.l}</label>
-                      <input style={IS} placeholder={f.ph} value={campaign[f.k]} onChange={e=>saveCamp({...campaign,[f.k]:e.target.value})} />
-                    </div>
-                  ))}
-                </div>
+              <div style=${{display:"flex",gap:8,flexShrink:0}}>
+                <button onClick=${()=>setEditP({...p})} style=${{fontSize:12,color:"#64748b",border:"1px solid #e2e8f0",background:"transparent",borderRadius:8,padding:"6px 12px",cursor:"pointer",fontFamily:"inherit"}}>Bearbeiten</button>
+                <button onClick=${()=>saveProds(prods.filter(x=>x.id!==p.id))} style=${{fontSize:12,color:"#dc2626",border:"1px solid #fecaca",background:"transparent",borderRadius:8,padding:"6px 12px",cursor:"pointer",fontFamily:"inherit"}}>Löschen</button>
               </div>
+            </div>`)}
+          </div>
+        </div>`:""}
 
-              {/* Connex preset */}
-              <div style={{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:16,padding:20}}>
-                <div style={{fontSize:15,fontWeight:800,color:"#92400e",marginBottom:6}}>🔗 Connex Vorlage laden</div>
-                <p style={{fontSize:13,color:"#b45309",marginBottom:14,lineHeight:1.5}}>Lädt Kampagneninfos und alle Connex-Produkte vor. Bestehende Produkte werden überschrieben.</p>
-                <Btn col="#d97706" onClick={()=>{saveCamp(CONNEX_PRESET.campaign);saveProds(CONNEX_PRESET.products);}} sx={{borderRadius:8,padding:"9px 18px",fontSize:13}}>Connex Template aktivieren</Btn>
+        ${atab==="settings"?html`<div style=${{display:"flex",flexDirection:"column",gap:20}}>
+          <div style=${{background:"#eff6ff",border:"1px solid #bfdbfe",borderRadius:16,padding:24}}>
+            <div style=${{fontSize:15,fontWeight:800,color:"#1e40af",marginBottom:6}}>🔗 JSONBin.io Verbindung</div>
+            <p style=${{fontSize:13,color:"#3b82f6",marginBottom:16,lineHeight:1.6}}>
+              Bestellungen werden bei JSONBin.io gespeichert (kostenlos).<br/>
+              Setup: 1. Account auf jsonbin.io → 2. API Key kopieren → 3. Neuen Bin anlegen (Inhalt: []) → 4. Bin ID kopieren → 5. Hier eintragen.
+            </p>
+            <div style=${{display:"grid",gap:10}}>
+              <div><label style=${lbl}>API Key (X-Master-Key)</label>
+                <input type="password" style=${{...IS,borderColor:"#bfdbfe"}} placeholder="\$2a\$10\$..." value=${jbKey} onChange=${e=>saveKey(e.target.value)} />
               </div>
-
-              {/* Reset */}
-              <div style={{background:"#fff5f5",border:"1px solid #fecaca",borderRadius:16,padding:20}}>
-                <div style={{fontSize:15,fontWeight:800,color:"#991b1b",marginBottom:6}}>⚠ Neue Kampagne starten</div>
-                <p style={{fontSize:13,color:"#b91c1c",marginBottom:14,lineHeight:1.5}}>Löscht alle Bestellungen im Bin – vorher exportieren! Produkte bleiben erhalten.</p>
-                <Btn col="#dc2626" onClick={async()=>{if(window.confirm("Wirklich alle Bestellungen löschen?")){{await jb.save(jbKey,jbBin,[]);setOrds([])}}}} sx={{borderRadius:8,padding:"9px 18px",fontSize:13}}>Bestellungen zurücksetzen</Btn>
+              <div><label style=${lbl}>Bin ID</label>
+                <input style=${{...IS,borderColor:"#bfdbfe"}} placeholder="6..." value=${jbBin} onChange=${e=>saveBin(e.target.value)} />
               </div>
             </div>
-          )}
-        </div>
+          </div>
+          <div style=${{background:"#fff",border:"1px solid #e2e8f0",borderRadius:16,padding:24}}>
+            <div style=${{fontSize:15,fontWeight:800,color:"#0f172a",marginBottom:16}}>Kampagne</div>
+            <div style=${{display:"flex",flexDirection:"column",gap:12}}>
+              ${[{k:"name",l:"Titel",ph:"z.B. Sammelbestellung Connex Ketten"},{k:"sponsor",l:"Sponsor",ph:"z.B. Connex by Wippermann"},{k:"deadline",l:"Bestellfrist",ph:"z.B. 15. März 2026"},{k:"description",l:"Info-Text",ph:"Kurze Beschreibung"}].map(f=>html`<div key=${f.k}>
+                <label style=${lbl}>${f.l}</label>
+                <input style=${IS} placeholder=${f.ph} value=${camp[f.k]} onChange=${e=>saveCamp({...camp,[f.k]:e.target.value})} />
+              </div>`)}
+            </div>
+          </div>
+          <div style=${{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:16,padding:20}}>
+            <div style=${{fontSize:15,fontWeight:800,color:"#92400e",marginBottom:6}}>🔗 Connex Vorlage laden</div>
+            <p style=${{fontSize:13,color:"#b45309",marginBottom:14,lineHeight:1.5}}>Lädt alle Connex-Produkte vor. Bestehende Produkte werden überschrieben.</p>
+            <${Btn} col="#d97706" onClick=${()=>{saveCamp(CONNEX.c);saveProds(CONNEX.p);}} sx=${{borderRadius:8,padding:"9px 18px",fontSize:13}}>Connex Template aktivieren<//>
+          </div>
+          <div style=${{background:"#fff5f5",border:"1px solid #fecaca",borderRadius:16,padding:20}}>
+            <div style=${{fontSize:15,fontWeight:800,color:"#991b1b",marginBottom:6}}>⚠ Neue Kampagne starten</div>
+            <p style=${{fontSize:13,color:"#b91c1c",marginBottom:14,lineHeight:1.5}}>Löscht alle Bestellungen im Bin. Vorher exportieren!</p>
+            <${Btn} col="#dc2626" onClick=${async()=>{if(window.confirm("Wirklich alle Bestellungen löschen?")){await jbSave(jbKey,jbBin,[]);saveOrds([]);}}} sx=${{borderRadius:8,padding:"9px 18px",fontSize:13}}>Bestellungen zurücksetzen<//>
+          </div>
+        </div>`:""}
+
       </div>
-    );
+    </div>`;
   }
 
-  /* ORDER PAGE */
-  const cats = [...new Set(products.map(p=>p.cat||"Sonstiges"))];
-  const canSubmit = buyer.name.trim() && buyer.email.trim() && cartQty>0 && !submitting;
+  // ORDER PAGE
+  const cats = [...new Set(prods.map(p=>p.cat||"Sonstiges"))];
+  const canSub = buyer.name.trim()&&buyer.email.trim()&&cartQty>0&&!sub;
 
-  return (
-    <div style={{...base,paddingBottom:240}}>
-      <div style={{background:"#fff",borderBottom:"1px solid #f1f5f9",position:"sticky",top:0,zIndex:10}}>
-        <div style={{maxWidth:680,margin:"0 auto",padding:"16px 20px",display:"flex",alignItems:"flex-start",justifyContent:"space-between"}}>
-          <div>
-            <div style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:2}}>Team Rynkeby RheinRuhr</div>
-            <h1 style={{margin:0,fontSize:21,fontWeight:800,color:"#0f172a",lineHeight:1.2}}>{campaign.name||"Sammelbestellung"}</h1>
-            {campaign.sponsor && <div style={{fontSize:12,color:"#64748b",marginTop:3}}>von {campaign.sponsor}</div>}
-            {campaign.deadline && <div style={{fontSize:12,color:"#dc2626",fontWeight:700,marginTop:3}}>⏱ Bestellfrist: {campaign.deadline}</div>}
-          </div>
-          <button onClick={()=>setPage("admin")} title="Admin" style={{background:"transparent",border:"none",color:"#e2e8f0",cursor:"pointer",fontSize:20,padding:4,marginTop:4}}>⚙</button>
+  return html`<div style=${{minHeight:"100vh",paddingBottom:240}}>
+    <div style=${{background:"#fff",borderBottom:"1px solid #f1f5f9",position:"sticky",top:0,zIndex:10}}>
+      <div style=${{maxWidth:680,margin:"0 auto",padding:"16px 20px",display:"flex",alignItems:"flex-start",justifyContent:"space-between"}}>
+        <div>
+          <div style=${{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:2}}>Team Rynkeby RheinRuhr</div>
+          <h1 style=${{margin:0,fontSize:21,fontWeight:800,color:"#0f172a",lineHeight:1.2}}>${camp.name||"Sammelbestellung"}</h1>
+          ${camp.sponsor?html`<div style=${{fontSize:12,color:"#64748b",marginTop:3}}>von ${camp.sponsor}</div>`:""}
+          ${camp.deadline?html`<div style=${{fontSize:12,color:"#dc2626",fontWeight:700,marginTop:3}}>⏱ Bestellfrist: ${camp.deadline}</div>`:""}
         </div>
-        {campaign.description && <div style={{maxWidth:680,margin:"0 auto",padding:"0 20px 14px"}}><p style={{margin:0,fontSize:13,color:"#64748b",lineHeight:1.5}}>{campaign.description}</p></div>}
+        <button onClick=${()=>setPage("admin")} title="Admin" style=${{background:"transparent",border:"none",color:"#e2e8f0",cursor:"pointer",fontSize:20,padding:4,marginTop:4}}>⚙</button>
       </div>
+      ${camp.description?html`<div style=${{maxWidth:680,margin:"0 auto",padding:"0 20px 14px"}}><p style=${{margin:0,fontSize:13,color:"#64748b",lineHeight:1.5}}>${camp.description}</p></div>`:""}
+    </div>
 
-      {products.length===0
-        ? <div style={{maxWidth:680,margin:"0 auto",padding:"72px 20px",textAlign:"center"}}>
-            <div style={{fontSize:44,marginBottom:14}}>🚲</div>
-            <p style={{color:"#94a3b8",fontSize:14,margin:0,lineHeight:1.6}}>Noch keine Produkte konfiguriert.<br/>Öffne den Admin-Bereich (⚙) und aktiviere ein Template.</p>
-          </div>
-        : <div style={{maxWidth:680,margin:"0 auto",padding:"24px 20px 0"}}>
-            {cats.map(cat=>(
-              <div key={cat} style={{marginBottom:28}}>
-                <div style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:12}}>{cat}</div>
-                <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                  {products.filter(p=>(p.cat||"Sonstiges")===cat).map(p=>{
-                    const qty = cart[p.id]||0;
-                    const hasDis = p.preis&&p.uvp&&parseFloat(p.preis)<parseFloat(p.uvp);
-                    const dPrice = p.preis||p.uvp;
-                    return (
-                      <div key={p.id} style={{background:"#fff",borderRadius:14,padding:"14px 16px",border:`1px solid ${qty>0?"#fca5a5":"#e2e8f0"}`,outline:qty>0?"3px solid #fee2e2":"none",transition:"all 0.15s"}}>
-                        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
-                          <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontWeight:700,color:"#0f172a",fontSize:14}}>{p.name}</div>
-                            {p.desc&&<p style={{margin:"4px 0 0",fontSize:12,color:"#64748b",lineHeight:1.5}}>{p.desc}</p>}
-                          </div>
-                          <div style={{textAlign:"right",flexShrink:0}}>
-                            {dPrice
-                              ? <>{hasDis&&<div style={{fontSize:11,color:"#94a3b8",textDecoration:"line-through"}}>{fmtP(p.uvp)}</div>}<div style={{fontWeight:800,fontSize:15,color:p.preis?"#dc2626":"#374151"}}>{fmtP(dPrice)}</div></>
-                              : <div style={{fontSize:12,color:"#94a3b8"}}>Preis folgt</div>}
-                          </div>
-                        </div>
-                        <div style={{marginTop:12,display:"flex",justifyContent:"flex-end",alignItems:"center",gap:12}}>
-                          <button onClick={()=>setQty(p.id,-1)} style={{width:32,height:32,borderRadius:"50%",border:"1px solid #e2e8f0",background:"transparent",color:"#64748b",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
-                          <span style={{fontWeight:800,fontSize:16,minWidth:20,textAlign:"center",color:qty>0?"#dc2626":"#0f172a"}}>{qty}</span>
-                          <button onClick={()=>setQty(p.id,1)} style={{width:32,height:32,borderRadius:"50%",border:`1px solid ${qty>0?"transparent":"#dc2626"}`,background:qty>0?"#dc2626":"transparent",color:qty>0?"#fff":"#dc2626",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
-                        </div>
-                      </div>
-                    );
-                  })}
+    ${prods.length===0?html`<div style=${{maxWidth:680,margin:"0 auto",padding:"72px 20px",textAlign:"center"}}>
+      <div style=${{fontSize:44,marginBottom:14}}>🚲</div>
+      <p style=${{color:"#94a3b8",fontSize:14,lineHeight:1.6}}>Noch keine Produkte konfiguriert.<br/>Öffne den Admin-Bereich (⚙) und aktiviere ein Template.</p>
+    </div>`:html`<div style=${{maxWidth:680,margin:"0 auto",padding:"24px 20px 0"}}>
+      ${cats.map(cat=>html`<div key=${cat} style=${{marginBottom:28}}>
+        <div style=${{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:12}}>${cat}</div>
+        <div style=${{display:"flex",flexDirection:"column",gap:10}}>
+          ${prods.filter(p=>(p.cat||"Sonstiges")===cat).map(p=>{
+            const qty=cart[p.id]||0;
+            const hasDis=p.preis&&p.uvp&&parseFloat(p.preis)<parseFloat(p.uvp);
+            const dp=p.preis||p.uvp;
+            return html`<div key=${p.id} style=${{background:"#fff",borderRadius:14,padding:"14px 16px",border:"1px solid "+(qty>0?"#fca5a5":"#e2e8f0"),outline:qty>0?"3px solid #fee2e2":"none",transition:"all 0.15s"}}>
+              <div style=${{display:"flex",alignItems:"flex-start",gap:12}}>
+                ${p.img?html`<img src=${p.img} alt=${p.name}
+                  onError=${e=>{e.target.style.display="none";}}
+                  style=${{width:72,height:72,objectFit:"contain",borderRadius:8,border:"1px solid #f1f5f9",flexShrink:0,background:"#f8fafc"}} />`:""}
+                <div style=${{flex:1,minWidth:0}}>
+                  <div style=${{fontWeight:700,color:"#0f172a",fontSize:14}}>${p.name}</div>
+                  ${p.desc?html`<p style=${{margin:"4px 0 0",fontSize:12,color:"#64748b",lineHeight:1.5}}>${p.desc}</p>`:""}
+                </div>
+                <div style=${{textAlign:"right",flexShrink:0}}>
+                  ${dp?html`<div>
+                    ${hasDis?html`<div style=${{fontSize:11,color:"#94a3b8",textDecoration:"line-through"}}>${fmtP(p.uvp)}</div>`:""}
+                    <div style=${{fontWeight:800,fontSize:15,color:p.preis?"#dc2626":"#374151"}}>${fmtP(dp)}</div>
+                  </div>`:html`<div style=${{fontSize:12,color:"#94a3b8"}}>Preis folgt</div>`}
                 </div>
               </div>
-            ))}
-          </div>
-      }
-
-      {products.length>0 && (
-        <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",borderTop:"1px solid #e2e8f0",boxShadow:"0 -4px 20px rgba(0,0,0,0.07)",zIndex:20}}>
-          <div style={{maxWidth:680,margin:"0 auto",padding:"14px 20px"}}>
-            <div style={{display:"flex",gap:10,marginBottom:10}}>
-              <input placeholder="Dein Name *" style={{...IS,flex:1,minWidth:0}} value={buyer.name} onChange={e=>setBuyer(b=>({...b,name:e.target.value}))} />
-              <input placeholder="E-Mail-Adresse *" type="email" style={{...IS,flex:1,minWidth:0}} value={buyer.email} onChange={e=>setBuyer(b=>({...b,email:e.target.value}))} />
-            </div>
-            <input placeholder="Anmerkungen (optional)" style={{...IS,marginBottom:subErr?"6px":"10px"}} value={buyer.note} onChange={e=>setBuyer(b=>({...b,note:e.target.value}))} />
-            {subErr && <p style={{fontSize:12,color:"#dc2626",marginBottom:8}}>{subErr}</p>}
-            <button onClick={submit} disabled={!canSubmit} style={{background:canSubmit?"#dc2626":"#f1f5f9",color:canSubmit?"#fff":"#94a3b8",border:"none",borderRadius:12,padding:"13px 20px",fontSize:15,fontWeight:800,cursor:canSubmit?"pointer":"not-allowed",width:"100%",transition:"all 0.15s"}}>
-              {submitting?"Wird gesendet…":cartQty>0?`Bestellung absenden – ${cartQty} Artikel${cartTot>0?" · "+fmtP(cartTot):""}` : "Artikel auswählen und Bestellung absenden"}
-            </button>
-          </div>
+              <div style=${{marginTop:12,display:"flex",justifyContent:"flex-end",alignItems:"center",gap:12}}>
+                <button onClick=${()=>setQty(p.id,-1)} style=${{width:32,height:32,borderRadius:"50%",border:"1px solid #e2e8f0",background:"transparent",color:"#64748b",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>−</button>
+                <span style=${{fontWeight:800,fontSize:16,minWidth:20,textAlign:"center",color:qty>0?"#dc2626":"#0f172a"}}>${qty}</span>
+                <button onClick=${()=>setQty(p.id,1)} style=${{width:32,height:32,borderRadius:"50%",border:"1px solid "+(qty>0?"transparent":"#dc2626"),background:qty>0?"#dc2626":"transparent",color:qty>0?"#fff":"#dc2626",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>+</button>
+              </div>
+            </div>`;
+          })}
         </div>
-      )}
+      </div>`)}
+    </div>`}
+
+    <div style=${{position:"fixed",bottom:0,left:0,right:0,background:"#fff",borderTop:"1px solid #e2e8f0",boxShadow:"0 -4px 20px rgba(0,0,0,0.07)",zIndex:20}}>
+      <div style=${{maxWidth:680,margin:"0 auto",padding:"14px 20px"}}>
+        <div style=${{display:"flex",gap:10,marginBottom:10}}>
+          <input placeholder="Dein Name *" style=${{...IS,flex:1,minWidth:0}} value=${buyer.name} onChange=${e=>setBuyer(b=>({...b,name:e.target.value}))} />
+          <input placeholder="E-Mail-Adresse *" type="email" style=${{...IS,flex:1,minWidth:0}} value=${buyer.email} onChange=${e=>setBuyer(b=>({...b,email:e.target.value}))} />
+        </div>
+        <input placeholder="Anmerkungen (optional)" style=${{...IS,marginBottom:subErr?"6px":"10px"}} value=${buyer.note} onChange=${e=>setBuyer(b=>({...b,note:e.target.value}))} />
+        ${subErr?html`<p style=${{fontSize:12,color:"#dc2626",marginBottom:8}}>${subErr}</p>`:""}
+        <button onClick=${submit} disabled=${!canSub} style=${{background:canSub?"#dc2626":"#f1f5f9",color:canSub?"#fff":"#94a3b8",border:"none",borderRadius:12,padding:"13px 20px",fontSize:15,fontWeight:800,cursor:canSub?"pointer":"not-allowed",width:"100%",transition:"all 0.15s",fontFamily:"inherit"}}>
+          ${sub?"Wird gesendet…":cartQty>0?"Bestellung absenden \u2013 "+cartQty+" Artikel"+(cartTot>0?" \u00b7 "+fmtP(cartTot):""):"Artikel ausw\u00e4hlen und Bestellung absenden"}
+        </button>
+      </div>
     </div>
-  );
+  </div>`;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+createRoot(document.getElementById('root')).render(html`<${App} />`);
 </script>
 </body>
 </html>

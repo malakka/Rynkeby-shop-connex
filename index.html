@@ -106,7 +106,7 @@ function PForm({ p, onChange, onSave, onCancel }) {
 }
 
 /* ── App ────────────────────────────────────────────────────────────────── */
-export default function App() {
+function App() {
   const [ready, setReady]     = useState(false);
   const [page, setPage]       = useState("order");
   const [campaign, setCamp]   = useState({ name:"", sponsor:"", deadline:"", description:"" });

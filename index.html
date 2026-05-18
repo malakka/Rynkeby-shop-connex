@@ -287,7 +287,7 @@ function App() {
       <input type="password" placeholder="Passwort" style=${{...IS,marginBottom:10}}
         value=${ap} onChange=${e=>setAp(e.target.value)}
         onKeyDown=${e=>e.key==="Enter"&&setAok(ap===adminPwd)} />
-      ${ap&&ap!==PASS?html`<p style=${{color:"#dc2626",fontSize:13,marginBottom:10}}>Falsches Passwort</p>`:""}
+      ${ap&&ap!==adminPwd?html`<p style=${{color:"#dc2626",fontSize:13,marginBottom:10}}>Falsches Passwort</p>`:""}
       <${Btn} onClick=${()=>setAok(ap===adminPwd)} sx=${{width:"100%",marginBottom:8,fontSize:14,padding:11}}>Anmelden<//>
       <button onClick=${()=>setPage("order")} style=${{width:"100%",background:"transparent",border:"none",color:"#94a3b8",fontSize:13,cursor:"pointer",padding:8,fontFamily:"inherit"}}>← Zurück</button>
     </div>

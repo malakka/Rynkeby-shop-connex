@@ -105,7 +105,9 @@ const jbFetch = async (key, bin) => {
     const r = await fetch(JB+"/"+bin+"/latest", { headers:{ "X-Master-Key":key, "X-Bin-Meta":"false" } });
     if (!r.ok) return null;
     const d = await r.json();
-    return Array.isArray(d.record) ? d.record : [];
+    if(Array.isArray(d)) return d;
+    if(Array.isArray(d.record)) return d.record;
+    return [];
   } catch { return null; }
 };
 const jbSave = async (key, bin, data) => {
